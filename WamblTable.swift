@@ -1,5 +1,6 @@
 //
-//  WamblTable.swift
+//  RWTable.swift
+//  rosterwatch
 //
 //  Created by William Robinson on 10/11/17.
 //  Copyright © 2017 Wambl, LLC. All rights reserved.
@@ -42,18 +43,14 @@ class WamblTable: UITableView {
             loading ? () : refresher.endRefreshing()
             wambl_delegate?.wamblTableLoadingChanged(is_loading: loading)
 
-            guard isNavigationLoaderEnabled else { return }
-
             if loading {
 
                 tv = viewController?.navigationItem.titleView
-                viewController?.navigationItem.titleView = loader
-
-            } else {
-
-                viewController?.navigationItem.titleView = tv
+                if isNavigationLoaderEnabled || forceTitleLoading { viewController?.navigationItem.titleView = loader }
 
             }
+
+            if !loading { viewController?.navigationItem.titleView = tv }
 
         }
 
@@ -83,12 +80,21 @@ class WamblTable: UITableView {
         }
 
     }
+    var forceTitleLoading: Bool = false {
+
+        didSet {
+
+            loading = forceTitleLoading
+
+        }
+
+    }
 
     init(viewController _viewController: UIViewController? = nil, view _view: UIView? = nil, cells _cells: [AnyClass]? = nil, style _style: UITableViewStyle = .plain){
         super.init(frame: CGRect.zero, style: _style)
 
         backgroundColor = style == .grouped ? UIColor.Table.grouped.color : UIColor.clear
-        separatorStyle = .none
+        separatorStyle = style == .grouped ? .singleLineEtched : .none
         estimatedRowHeight = 44
         rowHeight = UITableViewAutomaticDimension
 
@@ -100,12 +106,12 @@ class WamblTable: UITableView {
             viewController = _view
             delegate = _view as? UITableViewDelegate
             dataSource = _view as? UITableViewDataSource
-            wambl_delegate = _view as? RWTableDelegate
+            wambl_delegate = _view as? WamblTableDelegate
         }
         if let _view = _view {
             delegate = _view as? UITableViewDelegate
             dataSource = _view as? UITableViewDataSource
-            wambl_delegate = _view as? RWTableDelegate
+            wambl_delegate = _view as? WamblTableDelegate
         }
 
     }
